@@ -4,7 +4,7 @@ categories: [Front-end]
 tags: [react, cra] # TAG names should always be lowercase
 ---
 
-# Build-time Transfile
+# Build-time Transpile
 
 In this chapter, lets guarantee script being transfered in build time
 
@@ -12,7 +12,7 @@ In this chapter, lets guarantee script being transfered in build time
 To this, we should install 3 libraries using `npm`
 > - @babel/cli   #to excute babel in build time
 > - @babel/core     # to excute babel in build time
-> - @babel/preset-react      # to transfile react syntax to javascript
+> - @babel/preset-react      # to transpile react syntax to javascript
 
 ```
 @babel/preset-react example
@@ -106,7 +106,7 @@ Babel CDN no more need in `index.html`
 we can modify `index.html :: script` like above one. Then, we can see warning message clearly removed
 
 ---
-Generally, this kind of transfile process is operated with bundler like `webpack`
+Generally, this kind of transpile process is operated with bundler like `webpack`
 
 At next chapter, we'll learn **What is bundler?**, **Why Babel should be operated with bundler?**
 

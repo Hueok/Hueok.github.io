@@ -35,10 +35,10 @@ But, still contrary to expectations, syntax error is occured
 
 <br />
 
--> why? : because we didn't provide to a browser, what script will be transfiled. We can solve it by adding `type="text/babel"` in `<script>` tag.
+-> why? : because we didn't provide to a browser, what script will be transpiled. We can solve it by adding `type="text/babel"` in `<script>` tag.
 
 ```html 
-<script type="text/babel"> //let browser know "this part should be transfiled"
+<script type="text/babel"> //let browser know "this part should be transpiled"
 ```
 <br/>
 

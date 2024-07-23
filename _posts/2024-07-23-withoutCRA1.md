@@ -124,6 +124,6 @@ Now, as we expected, message is shown well.
 
 #### As we know at now, we can make react applicatoin without JSX. but, more complex applicatoin, the more difficult to define component.
 
-#### Then, how can we use JSX syntax? ->  Transfiler!(ex Babel) : transfer modern js syntax(include JSX) to old one.
+#### Then, how can we use JSX syntax? ->  Transpiler!(ex Babel) : transfer modern js syntax(include JSX) to old one.
 
 #### At next post, let's use JSX instead of `createElement` function
