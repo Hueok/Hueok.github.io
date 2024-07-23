@@ -1,5 +1,5 @@
 ---
-title: [withoutCRA1]CRA없이 React앱 구성하기
+title: "[withoutCRA1]CRA없이 React앱 구성하기"
 categories: [Front-end]
 tags: [react, cra] # TAG names should always be lowercase
 ---
