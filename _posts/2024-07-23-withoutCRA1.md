@@ -113,8 +113,10 @@ This is modified code part:
 </script>
 ...
 ```
+<br />
 
 Now, as we expected, message is shown well.
+
 ![img](/images/withoutCRA1_img/helloReact.png){: .normal }
 
 ---
