@@ -115,7 +115,7 @@ This is modified code part:
 ```
 
 Now, as we expected, message is shown well.
-![img](/images/withoutCRA1_img/helloReact.png)
+![img](/images/withoutCRA1_img/helloReact.png){: .normal }
 
 ---
 #### So far, we made the simplest form of React application without Babel and Webpack.
