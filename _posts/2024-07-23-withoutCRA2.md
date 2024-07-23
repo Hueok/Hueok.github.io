@@ -7,12 +7,16 @@ tags: [react, cra] # TAG names should always be lowercase
 ### Use Babel
 In this chapter, we use transfer(babel). Babel also available in form of CDN.
 
+<br/>
+
 ```html
 ...
 <script src="https://unpkg.com/@babel/standalone@7.24.10/babel.min.js"></script>
 ...
 ```
 we know simply adding this line is okay.
+
+<br/>
 
 ![img](/images/withoutCRA2_img/babelLoad.png)
 
@@ -24,18 +28,24 @@ const App = () => <h1>Hello React World with JSX!</h1>;
 ReactDOM.render(<App />, document.getElementById("root"));
 ...
 ```
+<br/>
 
 But, still contrary to expectations, syntax error is occured
 ![img](/images/withoutCRA2_img/stillError.png)
+
+<br />
 
 -> why? : because we didn't provide to a browser, what script will be transfiled. We can solve it by adding `type="text/babel"` in `<script>` tag.
 
 ```html 
 <script type="text/babel"> //let browser know "this part should be transfiled"
 ```
+<br/>
 
 Now, we can see expected result.
 ![img](/images/withoutCRA2_img/JSXrender.png)
+
+<br/>
 
 But At console, we can see warning message as below.
 ![img](/images/withoutCRA2_img/babelWarning.png)
