@@ -18,10 +18,11 @@ tags: [stack overflow, dep] # TAG names should always be lowercase
 ![img](/images/StackOverflow_img/StackFrame.png)
 __일반적인 Stack Frame 구성__
 
+
 > __Calling Convention__
 > x32 Architecture에서는 Argument를 Stack에 저장한다.
 > x62 Architecture에서는 첫번째 인자에 대하여 `rdi`, 두번째 인자에 대하여 `rsi`를 사용하여 저장한다. 인자를 저장할 레지스터가 남아있지 않아졌을 때 Stack에 인자를 저장한다.
-{: .prompt-waning}
+{: .prompt-warning}
 
 # Stack Overflow
 Stack에서 일어나는 overflow현상을 의미한다.
