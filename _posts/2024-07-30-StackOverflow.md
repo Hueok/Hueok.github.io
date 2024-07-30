@@ -18,10 +18,11 @@ tags: [stack overflow, dep] # TAG names should always be lowercase
 ![img](/images/StackOverflow_img/StackFrame.png)
 __일반적인 Stack Frame 구성__
 
+<br />
 
 > __Calling Convention__
 > x32 Architecture에서는 Argument를 Stack에 저장한다.
-> x62 Architecture에서는 첫번째 인자에 대하여 `rdi`, 두번째 인자에 대하여 `rsi`를 사용하여 저장한다. 인자를 저장할 레지스터가 남아있지 않아졌을 때 Stack에 인자를 저장한다.
+> x64 Architecture에서는 첫번째 인자에 대하여 `rdi`, 두번째 인자에 대하여 `rsi`를 사용하여 저장한다. 인자를 저장할 레지스터가 남아있지 않아졌을 때 Stack에 인자를 저장한다.
 {: .prompt-warning}
 
 # Stack Overflow
@@ -96,8 +97,8 @@ End of assembler dump.
 따라서 `ebp`까지의 거리는 72byte 이므로, `ebp`가 4byte 차지하므로 총 76byte를 입력한 후에는 `Return Address`를 control하는 입력을 할 수 있다.
 
 실제로 되는지 테스트해보자.
-`AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBBB` : A*76 + B*4
-이를 프로그램에 입력해보면,
+`AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBBB` ( A*76 + B*4 ) : 
+이 문자열을 프로그램에 입력해보면,
 ```shell
 [Thread debugging using libthread_db enabled]
 Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
@@ -113,4 +114,4 @@ Program received signal SIGSEGV, Segmentation fault.
 단순히, stack의 permission중 execution을 빼버리면 해결되는 취약점이다.
 
 ---
-개선필요 포스팅
+개선필요 포스팅 : 
