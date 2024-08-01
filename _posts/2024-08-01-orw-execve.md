@@ -1,0 +1,225 @@
+---
+title: "System Hacking - orw shell code"
+categories: [Security, SystemHacking]
+tags: [shellcode, orw, gdb] # TAG names should always be lowercase
+---
+
+# orw (open-read-write)
+orw 셸코드는 파일을 열고, 읽고, 출력하는 셸코드다. 
+
+동작을 C코드로 표현해보면, 아래와 같은 느낌이다.
+```c
+char buf[0x30];
+int fd = open("/tmp/flag", RD_ONLY, NULL);
+read(fd, buf, 0x30); 
+write(1, buf, 0x30);
+```
+
+orw shellcode를 만들기 위해 `syscall` 몇가지를 익혀두자.
+
+| syscall | rax  | arg0 (rdi)           | arg1 (rsi)        | arg2 (rdx)    |
+| ------- | ---- | -------------------- | ----------------- | ------------- |
+| read    | 0x00 | unsigned int fd      | char *buf         | size_t count  |
+| write   | 0x01 | unsigned int fd      | const char *buf   | size_t count  |
+| open    | 0x02 | const char *filename | int flags         | umode_t mode  |
+
+위 C코드를 어셈블리로 구현해보자.
+## 1. int fd = open(“/tmp/flag”, O_RDONLY, NULL)
+1. "tmp/flag" 라는 문자열을 먼저 메모리에 위치시킨다. `0x67616c662f706d742f`(해당 문자열의 리틀 엔디안 형태)를 스택에 push한다. 최대 8바이트씩 나누어 push해야한다.
+
+2. rdi가 해당 값을 가리키도록 rsp를 rdi로 옮긴다.
+
+```text
+#define        O_RDONLY        0        /* Open read-only.  */
+#define        O_WRONLY        1        /* Open write-only.  */
+#define        O_RDWR          2        /* Open read/write.  */
+```
+3. `O_RDONLY`는 0이므로 `rsi`는 0으로 설정한다.
+
+4. `O_RDONLYa`에서 `mode`는 의미가 없으므로 `rdx`는 0으로 설정한다.
+
+5. open syscall 이므로 `rax`는 2로 설정한다.
+
+```text
+push 0x67
+mov rax, 0x616c662f706d742f 
+push rax
+mov rdi, rsp    ; rdi = "/tmp/flag"
+xor rsi, rsi    ; rsi = 0 ; RD_ONLY
+xor rdx, rdx    ; rdx = 0
+mov rax, 2      ; rax = 2 ; syscall_open
+syscall         ; open("/tmp/flag", RD_ONLY, NULL)
+```
+
+## 2. read(fd, buf, 0x30)
+1. 앞선 syscall open의 결과(/tmp/flag의 fd)는 `rax`에 담기므로 rax를 rdi에 대입한다.
+
+2. `rsi`는 데이터를 저장할 주소를 가리킨다. 0x30만큼 읽을 것이므로 `rsi-0x30`을 대입하자.
+
+3. `rdx`는 읽을 데이터의 길이이다. 0x30을 대입하자.
+
+4. read syscall이므로 `rax`에 0을 대입하자
+
+```text
+mov rdi, rax      ; rdi = fd
+mov rsi, rsp
+sub rsi, 0x30     ; rsi = rsp-0x30 ; buf
+mov rdx, 0x30     ; rdx = 0x30     ; len
+mov rax, 0x0      ; rax = 0        ; syscall_read
+syscall           ; read(fd, buf, 0x30)
+```
+
+> ___fd(File Descriptor)___
+> 유닉스 계열의 OS에서 소프트웨어에 제공하는 가상의 접근 제어자. 프로세스마다 고유한 서술자 테이블을 가지며, 그 안에 여러 파일 서술자를 저장한다. 서술자는 번호로 구별되는데, 일반적으로 0은 `STDIN`, 1은 `STDOUT`, 2는 `STDERR`에 할당되어 있으며, 이들은 프로세스를 터미널과 연결해준다. 
+> open을 통해 파일을 프로세스와 연결하려고 하면, 이미 사용중인 0~2번 이후의 번호부터 새로운 fd에 차례로 할당한다. 이후 fd를 통해 파일에 접근할 수 있다.
+{: .prompt-tip}
+
+## 3. write(1, buf, 0x30)
+
+1. `stdout`으로 출력할 것이므로 fd는 1번이다. rdi에 0x1을 대입하자.
+
+2. `rsi`는 read에서의 값과 동일하게 사용
+
+3. write syscall이므로 rax를 1로 설정한다.
+
+```text
+mov rdi, 1        ; rdi = 1 ; fd = stdout
+mov rax, 0x1      ; rax = 1 ; syscall_write
+syscall           ; write(fd, buf, 0x30)
+```
+
+## 1+2+3
+```text
+;Name: orw.S
+
+push 0x67
+mov rax, 0x616c662f706d742f 
+push rax
+mov rdi, rsp    ; rdi = "/tmp/flag"
+xor rsi, rsi    ; rsi = 0 ; RD_ONLY
+xor rdx, rdx    ; rdx = 0
+mov rax, 2      ; rax = 2 ; syscall_open
+syscall         ; open("/tmp/flag", RD_ONLY, NULL)
+
+mov rdi, rax      ; rdi = fd
+mov rsi, rsp
+sub rsi, 0x30     ; rsi = rsp-0x30 ; buf
+mov rdx, 0x30     ; rdx = 0x30     ; len
+mov rax, 0x0      ; rax = 0        ; syscall_read
+syscall           ; read(fd, buf, 0x30)
+
+mov rdi, 1        ; rdi = 1 ; fd = stdout
+mov rax, 0x1      ; rax = 1 ; syscall_write
+syscall           ; write(fd, buf, 0x30)
+```
+
+이 어셈블리 코드를 기계어로 치환하면 CPU는 읽을 수 있으나, _ELF_ 형식이 아니므로 Linux에서 실행이 불가능하다. 셸코드를 삽입할 C코드를 가져와서 삽입 후 gcc로 컴파일하는 방식으로 ELF화 시킨다.
+
+```c
+// File name: orw.c
+// Compile: gcc -o orw orw.c -masm=intel
+
+__asm__(
+    ".global run_sh\n"
+    "run_sh:\n"
+
+    "push 0x67\n"
+    "mov rax, 0x616c662f706d742f \n"
+    "push rax\n"
+    "mov rdi, rsp    # rdi = '/tmp/flag'\n"
+    "xor rsi, rsi    # rsi = 0 ; RD_ONLY\n"
+    "xor rdx, rdx    # rdx = 0\n"
+    "mov rax, 2      # rax = 2 ; syscall_open\n"
+    "syscall         # open('/tmp/flag', RD_ONLY, NULL)\n"
+    "\n"
+    "mov rdi, rax      # rdi = fd\n"
+    "mov rsi, rsp\n"
+    "sub rsi, 0x30     # rsi = rsp-0x30 ; buf\n"
+    "mov rdx, 0x30     # rdx = 0x30     ; len\n"
+    "mov rax, 0x0      # rax = 0        ; syscall_read\n"
+    "syscall           # read(fd, buf, 0x30)\n"
+    "\n"
+    "mov rdi, 1        # rdi = 1 ; fd = stdout\n"
+    "mov rax, 0x1      # rax = 1 ; syscall_write\n"
+    "syscall           # write(fd, buf, 0x30)\n"
+    "\n"
+    "xor rdi, rdi      # rdi = 0\n"
+    "mov rax, 0x3c	   # rax = sys_exit\n"
+    "syscall		   # exit(0)");
+
+void run_sh();
+
+int main() { run_sh(); }
+```
+위 코드는 셸코드를 삽입할 수 있는 C skeleton 코드다. 여기에 아까 작성한 assembly 코드를 삽입해보자.
+
+/tmp/flag에 적당히 값을 넣어주고, 코드를 컴파일 및 실행시키면 flag가 잘 출력된다.
+```shell
+$ ./orw
+flag{Dadsfofoiandsfoiwanfoia}
+```
+
+# gdb로 orw shellcode 보기
+작성한 orw shellcode의 실제 작동을 gdb로 디테일하게 살펴보자.
+
+gdb로 프로그램을 잡고, function 정보를 출력해보면 `run_sh`함수를 찾을 수 있다. 이 안에 orw shellcode가 들어가 있을 것이다.
+```text
+pwndbg> info func
+All defined functions:
+
+Non-debugging symbols:
+0x0000000000001000  _init
+0x0000000000001030  __cxa_finalize@plt
+0x0000000000001040  _start
+0x0000000000001070  deregister_tm_clones
+0x00000000000010a0  register_tm_clones
+0x00000000000010e0  __do_global_dtors_aux
+0x0000000000001120  frame_dummy
+0x0000000000001129  run_sh
+0x000000000000117e  main
+0x0000000000001194  _fini
+```
+
+`run_sh`에 break point걸고 실행해보자 rip가 assembly 코드 시작점에 위치함을 확인할 수 있다.
+```text
+ ► 0x55e5e35c9129 <run_sh>       push   0x67
+   0x55e5e35c912b <run_sh+2>     movabs rax, 0x616c662f706d742f     RAX => 0x616c662f706d742f ('/tmp/fla')
+   0x55e5e35c9135 <run_sh+12>    push   rax
+   0x55e5e35c9136 <run_sh+13>    mov    rdi, rsp                    RDI => 0x7fff31fb8db8 ◂— '/tmp/flag'
+   0x55e5e35c9139 <run_sh+16>    xor    rsi, rsi                    RSI => 0
+   0x55e5e35c913c <run_sh+19>    xor    rdx, rdx                    RDX => 0
+   0x55e5e35c913f <run_sh+22>    mov    rax, 2                      RAX => 2
+   0x55e5e35c9146 <run_sh+29>    syscall  <SYS_open>
+   0x55e5e35c9148 <run_sh+31>    mov    rdi, rax
+   0x55e5e35c914b <run_sh+34>    mov    rsi, rsp
+   0x55e5e35c914e <run_sh+37>    sub    rsi, 0x30
+```
+
+## 1. int fd = open(“/tmp/flag”, O_RDONLY, NULL)
+첫번째 syscall인 `run_sh+29`에 break point 걸고 continue해보면, `open("/tmp/flag", O_RDONLY, NULL)`이 정상적으로 수행되고있다.
+```
+ ► 0x55e5e35c9146 <run_sh+29>    syscall  <SYS_open>
+        file: 0x7fff31fb8db8 ◂— '/tmp/flag'
+        oflag: 0
+        vararg: 0
+```
+next step 가서 syscall 호출을 끝낸 시점에서 `rax`를 확인하면 `3`이 저장되어있다. 이는 /tmp/flag의 파일 서술자다.
+
+## 2.read(fd, buf, 0x30)
+두번째 syscall인 `run_sh+55`에 break point 걸고 continue로 확인해보면, 각 인자가 계획한대로 들어가있다.
+```text
+ ► 0x55e5e35c9160 <run_sh+55>    syscall  <SYS_read>
+        fd: 3 (/tmp/flag)
+        buf: 0x7fff31fb8d88 ◂— 0
+        nbytes: 0x30
+```
+next step 으로 syscall 호출을 끝낸 시점에서 보면  ` RSI  0x7fff31fb8d88 ◂— 'flag{Dadsfofoiandsfoiwanfoia}\n'` 에서 RSI에 flag의 값이 저장되어 있다.
+
+## 3. write(1, buf, 0x30)
+마지막 syscall로 이동해서 인자를 확인해보면, fd가 _STDOUT_ 을 의미하는 1로 바뀌어있다.
+```text
+ ► 0x55e5e35c9170 <run_sh+71>    syscall  <SYS_write>
+        fd: 1 (/dev/pts/0)
+        buf: 0x7fff31fb8d88 ◂— 'flag{Dadsfofoiandsfoiwanfoia}\n'
+        n: 0x30
+```
