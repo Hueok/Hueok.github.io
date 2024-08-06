@@ -33,4 +33,4 @@ addr of string "/bin/sh"   <= ret + 0x8
 addr of "system" plt       <= ret + 0x10
 ```
 
-RTL공격은 **Return Oriented Programming**으로 발전한다. 바이너리의 가젯과 라이브러리의 가젯을 이용해서 어셈블리어 프로그래밍 하듯이 응용한다 하여 `ROP`라고 부른다. 
+RTL공격은 **Return Oriented Programming**으로 발전한다. 바이너리의 가젯과 라이브러리의 가젯을 이용해서 어셈블리어 프로그래밍 하듯이 복잡한 실행 흐름을 구현하는 기법을 `ROP`라고 부르는데, 상황에 따라 `ROP`를 이용해서 RTL, GOT overwrite 등의 페이로드를 작성할 수 있는것이다.
