@@ -1,10 +1,10 @@
 ---
-title: "Arch Linux - How to Use Other WM for KDE"
+title: "Arch Linux - How to Use Other WM for KDE in X11"
 categories: [Others]
 tags: [linux, wm] # TAG names should always be lowercase
 ---
 
-> KDE Plasma 6 DE를 기준으로 기본 WM인 Kwin 말고 다른 WM을 사용하는 방법에 대해 정리한다.
+> X11 환경에서 KDE Plasma 6 DE를 기준으로 기본 WM인 Kwin 말고 다른 WM을 사용하는 방법에 대해 정리한다.
 
 Plasma 5.25 이후로 기존의 Xsession을 이용하는 방법 말고, systemd의 service파일을 만들어서 mask/unmask를 통해서도 WM 설정이 가능하다.
 
