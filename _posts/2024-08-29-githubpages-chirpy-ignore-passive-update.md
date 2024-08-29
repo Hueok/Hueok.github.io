@@ -11,12 +11,12 @@ tags: [github] # TAG names should always be lowercase
 
 # Solution
 
-`@/_config.yml` 파일의 `pwa`를 disable하자.
+`@/_config.yml::pwa::deny_paths`에 `_posts`경로를 추가하자
 
 ```yml
 ...
 pwa:
-  enabled: false # the option for PWA feature (installable)
+  enabled: true # the option for PWA feature (installable)
   cache:
     enabled: true # the option for PWA offline cache
     # Paths defined here will be excluded from the PWA cache.
@@ -24,6 +24,7 @@ pwa:
     # shares the same domain name as the current website.
     deny_paths:
       # - "/example"  # URLs match `<SITE_URL>/example/*` will not be cached by the PWA
+      "/_posts"
 ...
 ```
 
