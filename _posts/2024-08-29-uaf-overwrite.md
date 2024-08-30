@@ -1,10 +1,13 @@
 ---
 title: "System Hacking Wargame - Dreamhack: uaf_overwrite"
-categories: [Security, SystemHacking]
+categories: [Wargame, pwnable]
 tags: [pwnable, uaf, wargame, allocator] # TAG names should always be lowercase
 ---
 
+> `GLIBC2.27`기준으로 작성되었다.
+
 [uaf_overwrite](https://dreamhack.io/wargame/challenges/357)
+
 
 
 ## 문제의 코드
