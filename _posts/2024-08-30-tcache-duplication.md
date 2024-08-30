@@ -9,7 +9,7 @@ tags: [pwnable, tcache, ptmalloc2] # TAG names should always be lowercase
 `GLIBC2.26`부터 `tcache`라는 개념이 도입됐다. 이 버전에서는 `Double Free`를 검증하는 보호기법이 없었으나 `GLIBC2.29`부터 key값을 사용하는 보호기법이 적용되었다.
 
 > **GLIBC source code Download**
-
+> 
 > `$ wget "https://ftp.gnu.org/gnu/glibc/glibc-2.27.tar.gz"`
 {: .prompt-tip}
 
