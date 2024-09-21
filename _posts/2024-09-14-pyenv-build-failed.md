@@ -9,7 +9,7 @@ tags: [pyenv, bug] # TAG names should always be lowercase
 
 일반적으로 python 빌드를 위한 dependencies가 충족되어 있지 않았을 경우 발생한다. 
 
-```
+```shell
 sudo apt update
 sudo apt install \
     build-essential \
