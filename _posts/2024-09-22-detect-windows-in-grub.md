@@ -10,9 +10,9 @@ tags: [arch] # TAG names should always be lowercase
 
 1. Install required packages `os-prober`, `ntfs-3g`
 
-```shell
-$ sudo pacman -S os-prober ntfs-3g
-```
+    ```shell
+    $ sudo pacman -S os-prober ntfs-3g
+    ```
 
 2. Edit `/etc/default/grub`.
 
@@ -20,7 +20,7 @@ $ sudo pacman -S os-prober ntfs-3g
 
 3. Update grub config
 
-```shell
-$ sudo grub-mkconfig -o /boot/grub/grub.cfg
-```
+    ```shell
+    $ sudo grub-mkconfig -o /boot/grub/grub.cfg
+    ```
 
